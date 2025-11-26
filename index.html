@@ -1,29 +1,19 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Web3 Demo</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Web3 Modern Demo</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>Web3 Demo</h1>
-  <button id="connectBtn">Connect Wallet</button>
-  <p id="status"></p>
+  <div class="container">
+    <h1>Web3 Demo</h1>
+    <p class="desc">Connect your wallet and interact with Web3!</p>
+    <button id="connectBtn">Connect Wallet</button>
+    <p id="status"></p>
+  </div>
 
-  <script>
-    const connectBtn = document.getElementById("connectBtn");
-    const status = document.getElementById("status");
-
-    connectBtn.onclick = async () => {
-      if (window.ethereum) {
-        try {
-          const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
-          status.innerHTML = "Wallet connected: " + accounts[0];
-        } catch {
-          status.innerHTML = "User rejected connection";
-        }
-      } else {
-        status.innerHTML = "MetaMask not detected";
-      }
-    };
-  </script>
+  <script src="script.js"></script>
 </body>
 </html>
