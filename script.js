@@ -1,49 +1,66 @@
-const connectBtn = document.getElementById("connectBtn");
-const status = document.getElementById("status");
-const walletInfo = document.getElementById("walletInfo");
-const walletAddressSpan = document.getElementById("walletAddress");
-const walletBalanceSpan = document.getElementById("walletBalance");
+let web3Modal;
+let provider;
+let signer;
+let ethersProvider;
 
-const contractCallDiv = document.getElementById("contractCall");
-const contractValueSpan = document.getElementById("contractValue");
-const readContractBtn = document.getElementById("readContract");
+// RPC (multi-chain support)
+const RPCs = {
+  1: "https://rpc.ankr.com/eth",         // Ethereum Mainnet
+  56: "https://bsc-dataseed.binance.org/", // BSC
+  137: "https://polygon-rpc.com/",       // Polygon
+  66: "https://exchainrpc.okex.org"      // OKX Chain
+};
 
-// Contoh: dummy smart contract read-only
-const contractAddress = "0x0000000000000000000000000000000000000000"; // ganti sesuai contract
-const abi = [
-  "function name() view returns (string)"
-];
-
-connectBtn.onclick = async () => {
-  if (window.ethereum) {
-    try {
-      await ethereum.request({ method: 'eth_requestAccounts' });
-      const provider = new ethers.providers.Web3Provider(window.ethereum);
-      const signer = provider.getSigner();
-      const account = await signer.getAddress();
-      walletAddressSpan.innerText = account;
-
-      const balance = await provider.getBalance(account);
-      walletBalanceSpan.innerText = ethers.utils.formatEther(balance);
-
-      walletInfo.classList.remove("hidden");
-      contractCallDiv.classList.remove("hidden");
-      connectBtn.style.display = "none";
-    } catch {
-      status.innerHTML = "User rejected connection";
+window.onload = async () => {
+  const providerOptions = {
+    walletconnect: {
+      package: window.WalletConnectProvider.default,
+      options: {
+        rpc: RPCs
+      }
     }
-  } else {
-    status.innerHTML = "MetaMask not detected";
-  }
+  };
+
+  web3Modal = new window.Web3Modal.default({
+    cacheProvider: false,
+    providerOptions,
+    disableInjectedProvider: false
+  });
 };
 
-readContractBtn.onclick = async () => {
+async function connectWallet() {
   try {
-    const provider = new ethers.providers.Web3Provider(window.ethereum);
-    const contract = new ethers.Contract(contractAddress, abi, provider);
-    const value = await contract.name(); // contoh read
-    contractValueSpan.innerText = value;
+    provider = await web3Modal.connect();
+
+    ethersProvider = new ethers.providers.Web3Provider(provider);
+    signer = ethersProvider.getSigner();
+    const address = await signer.getAddress();
+    document.getElementById("walletAddress").innerText = address;
+
+    const balance = await ethersProvider.getBalance(address);
+    document.getElementById("walletBalance").innerText =
+      Number(ethers.utils.formatEther(balance)).toFixed(4);
+
+    document.getElementById("walletInfo").classList.remove("hidden");
+    document.getElementById("disconnectBtn").classList.remove("hidden");
+    document.getElementById("connectBtn").classList.add("hidden");
+
   } catch (err) {
-    contractValueSpan.innerText = "Error reading contract";
+    document.getElementById("status").innerText = "Connection failed";
   }
-};
+}
+
+async function disconnectWallet() {
+  if (provider?.close) {
+    await provider.close();
+  }
+
+  await web3Modal.clearCachedProvider();
+
+  document.getElementById("walletInfo").classList.add("hidden");
+  document.getElementById("disconnectBtn").classList.add("hidden");
+  document.getElementById("connectBtn").classList.remove("hidden");
+}
+
+document.getElementById("connectBtn").onclick = connectWallet;
+document.getElementById("disconnectBtn").onclick = disconnectWallet;
