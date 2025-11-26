@@ -3,17 +3,26 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Web3 Modern Demo</title>
+  <title>Web3 Advanced Demo</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div class="container">
-    <h1>Web3 Demo</h1>
-    <p class="desc">Connect your wallet and interact with Web3!</p>
+    <h1>Web3 Advanced Demo</h1>
+    <p class="desc">Connect your wallet and check your balance!</p>
     <button id="connectBtn">Connect Wallet</button>
+    <div id="walletInfo" class="hidden">
+      <p><strong>Wallet:</strong> <span id="walletAddress"></span></p>
+      <p><strong>ETH Balance:</strong> <span id="walletBalance"></span> ETH</p>
+    </div>
+    <div id="contractCall" class="hidden">
+      <p><strong>Contract value:</strong> <span id="contractValue"></span></p>
+      <button id="readContract">Read Contract</button>
+    </div>
     <p id="status"></p>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/ethers/dist/ethers.min.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
