@@ -1,34 +1,31 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ethereum WalletConnect Demo</title>
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web3 Wallet Connect | Demo</title>
+    <link rel="stylesheet" href="style.css">
 
-  <!-- Ethers.js -->
-  <script src="https://cdn.jsdelivr.net/npm/ethers/dist/ethers.min.js"></script>
-
-  <!-- Web3Modal v1 + WalletConnect -->
-  <script src="https://unpkg.com/web3modal"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@walletconnect/web3-provider@1.8.0/dist/umd/index.min.js"></script>
+    <!-- Web3Modal (untuk OKX Wallet, MetaMask, TrustWallet, dll) -->
+    <script type="module" src="https://unpkg.com/@web3modal/wagmi@3/dist/wagmi.js"></script>
 </head>
 <body>
-  <div class="container">
-    <h1>Ethereum WalletConnect Demo</h1>
-    <p class="desc">Connect any wallet via WalletConnect (OKX, MetaMask, Trust Wallet, etc.)</p>
 
-    <button id="connectBtn">Connect Wallet</button>
-    <button id="disconnectBtn" class="hidden">Disconnect</button>
+    <div class="container">
+        <h1>Connect Web3 Wallet</h1>
+        <p>Support: OKX Wallet, MetaMask, Trust Wallet, WalletConnect, Coinbase, dll.</p>
 
-    <div id="walletInfo" class="hidden">
-      <p><strong>Address:</strong> <span id="walletAddress"></span></p>
-      <p><strong>ETH Balance:</strong> <span id="walletBalance"></span> ETH</p>
+        <button id="connectBtn" class="btn-primary">Connect Wallet</button>
+
+        <div id="wallet-info" class="info-box hidden">
+            <h2>Wallet Info</h2>
+            <p><strong>Address:</strong> <span id="address"></span></p>
+            <p><strong>Chain ID:</strong> <span id="chain"></span></p>
+            <button id="disconnectBtn" class="btn-secondary">Disconnect</button>
+        </div>
     </div>
 
-    <p id="status"></p>
-  </div>
-
-  <script src="script.js"></script>
+    <!-- Ganti ke script.js -->
+    <script src="script.js" type="module"></script>
 </body>
 </html>
