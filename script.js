@@ -1,63 +1,64 @@
-let web3Modal;
-let provider;
-let signer;
-let ethersProvider;
+import { createWeb3Modal, defaultWagmiConfig } from 'https://unpkg.com/@web3modal/wagmi@3/dist/wagmi.js';
+import { sepolia, mainnet } from 'https://cdn.jsdelivr.net/npm/viem/chains/dist/index.js';
 
-window.onload = async () => {
-  const providerOptions = {
-    walletconnect: {
-      package: window.WalletConnectProvider.default,
-      options: {
-        rpc: {
-          1: "https://rpc.ankr.com/eth" // Ethereum Mainnet
-        }
-      }
-    }
-  };
+// 1. WalletConnect Project ID (buat gratis di https://cloud.walletconnect.com)
+const projectId = "19201e3aed7dc4fcc0d43c44240a6317"; // ← Ganti dengan project ID Anda
 
-  web3Modal = new window.Web3Modal.default({
-    cacheProvider: false,
-    providerOptions,
-    disableInjectedProvider: false
-  });
+// 2. Konfigurasi wagmi
+const metadata = {
+  name: "Web3 Wallet Connect",
+  description: "Demo connect wallet",
+  url: "https://example.com",
+  icons: ["https://example.com/icon.png"]
 };
 
-async function connectWallet() {
+const chains = [mainnet, sepolia];
+
+const config = defaultWagmiConfig({
+  chains,
+  projectId,
+  metadata,
+});
+
+// 3. Buat modal connect wallet
+createWeb3Modal({
+  wagmiConfig: config,
+  projectId,
+  enableAnalytics: false
+});
+
+// ============ UI ELEMENTS ============
+const connectBtn = document.getElementById("connectBtn");
+const disconnectBtn = document.getElementById("disconnectBtn");
+const walletInfo = document.getElementById("wallet-info");
+const addressTag = document.getElementById("address");
+const chainTag = document.getElementById("chain");
+
+// ============ CONNECT WALLET ============
+connectBtn.addEventListener("click", async () => {
   try {
-    provider = await web3Modal.connect();
-
-    ethersProvider = new ethers.providers.Web3Provider(provider);
-    signer = ethersProvider.getSigner();
-    const address = await signer.getAddress();
-    document.getElementById("walletAddress").innerText = address;
-
-    const balance = await ethersProvider.getBalance(address);
-    document.getElementById("walletBalance").innerText =
-      Number(ethers.utils.formatEther(balance)).toFixed(4);
-
-    document.getElementById("walletInfo").classList.remove("hidden");
-    document.getElementById("disconnectBtn").classList.remove("hidden");
-    document.getElementById("connectBtn").classList.add("hidden");
-    document.getElementById("status").innerText = "";
-
-    // Optional: listen for account/network change
-    provider.on("accountsChanged", () => location.reload());
-    provider.on("chainChanged", () => location.reload());
+    await config.wagmiClient.connect();
+    updateWalletInfo();
   } catch (err) {
-    console.error("Connection failed:", err);
-    document.getElementById("status").innerText = "Connection failed. Please try again.";
+    console.log("Connect error:", err);
+  }
+});
+
+// ============ DISCONNECT ============
+disconnectBtn.addEventListener("click", async () => {
+  await config.wagmiClient.disconnect();
+  walletInfo.classList.add("hidden");
+});
+
+// ============ UPDATE UI ============
+async function updateWalletInfo() {
+  const state = config.wagmiClient.getState();
+  const addr = state.current?.signer?.address;
+  const chainId = state.chainId;
+
+  if (addr) {
+    addressTag.textContent = addr;
+    chainTag.textContent = chainId;
+    walletInfo.classList.remove("hidden");
   }
 }
-
-async function disconnectWallet() {
-  if (provider?.close) await provider.close();
-  await web3Modal.clearCachedProvider();
-
-  document.getElementById("walletInfo").classList.add("hidden");
-  document.getElementById("disconnectBtn").classList.add("hidden");
-  document.getElementById("connectBtn").classList.remove("hidden");
-  document.getElementById("status").innerText = "";
-}
-
-document.getElementById("connectBtn").onclick = connectWallet;
-document.getElementById("disconnectBtn").onclick = disconnectWallet;
