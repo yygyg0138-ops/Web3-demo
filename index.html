@@ -1,31 +1,29 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Web3 Wallet Connect | Demo</title>
+    <title>Universal Web3 Wallet Connect</title>
     <link rel="stylesheet" href="style.css">
 
-    <!-- Web3Modal (untuk OKX Wallet, MetaMask, TrustWallet, dll) -->
-    <script type="module" src="https://unpkg.com/@web3modal/wagmi@3/dist/wagmi.js"></script>
+    <!-- Web3Modal + WalletConnect + Ethers -->
+    <script src="https://unpkg.com/@walletconnect/web3modal@3.0.0/dist/index.umd.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
 </head>
 <body>
 
     <div class="container">
-        <h1>Connect Web3 Wallet</h1>
-        <p>Support: OKX Wallet, MetaMask, Trust Wallet, WalletConnect, Coinbase, dll.</p>
+        <h1>Universal Web3 Wallet Connect</h1>
 
-        <button id="connectBtn" class="btn-primary">Connect Wallet</button>
+        <button id="connectBtn">Connect Wallet</button>
 
-        <div id="wallet-info" class="info-box hidden">
-            <h2>Wallet Info</h2>
+        <div id="walletInfo" class="info hidden">
             <p><strong>Address:</strong> <span id="address"></span></p>
-            <p><strong>Chain ID:</strong> <span id="chain"></span></p>
-            <button id="disconnectBtn" class="btn-secondary">Disconnect</button>
+            <p><strong>Network:</strong> <span id="network"></span></p>
+            <p><strong>Balance:</strong> <span id="balance"></span> ETH</p>
         </div>
     </div>
 
-    <!-- Ganti ke script.js -->
-    <script src="script.js" type="module"></script>
+    <script src="script.js"></script>
 </body>
 </html>
