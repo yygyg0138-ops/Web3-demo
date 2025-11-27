@@ -1,64 +1,51 @@
-import { createWeb3Modal, defaultWagmiConfig } from 'https://unpkg.com/@web3modal/wagmi@3/dist/wagmi.js';
-import { sepolia, mainnet } from 'https://cdn.jsdelivr.net/npm/viem/chains/dist/index.js';
+// ---- SETUP WEB3MODAL ----
+const projectId = "19201e3aed7dc4fcc0d43c44240a6317"; // isi dengan WalletConnect Project ID kamu (gratis)
 
-// 1. WalletConnect Project ID (buat gratis di https://cloud.walletconnect.com)
-const projectId = "19201e3aed7dc4fcc0d43c44240a6317"; // ← Ganti dengan project ID Anda
+const modal = new window.Web3Modal.default({
+    walletConnectVersion: 2,
 
-// 2. Konfigurasi wagmi
-const metadata = {
-  name: "Web3 Wallet Connect",
-  description: "Demo connect wallet",
-  url: "https://example.com",
-  icons: ["https://example.com/icon.png"]
-};
+    projectId: projectId,
 
-const chains = [mainnet, sepolia];
+    chains: [
+        {
+            id: 1,
+            name: "Ethereum",
+            rpcUrls: ["https://rpc.ankr.com/eth"]
+        }
+    ],
 
-const config = defaultWagmiConfig({
-  chains,
-  projectId,
-  metadata,
+    themeMode: "dark",
 });
 
-// 3. Buat modal connect wallet
-createWeb3Modal({
-  wagmiConfig: config,
-  projectId,
-  enableAnalytics: false
-});
-
-// ============ UI ELEMENTS ============
+// ---- ELEMENT UI ----
 const connectBtn = document.getElementById("connectBtn");
-const disconnectBtn = document.getElementById("disconnectBtn");
-const walletInfo = document.getElementById("wallet-info");
-const addressTag = document.getElementById("address");
-const chainTag = document.getElementById("chain");
+const addressEl = document.getElementById("address");
+const networkEl = document.getElementById("network");
+const balanceEl = document.getElementById("balance");
+const walletInfo = document.getElementById("walletInfo");
 
-// ============ CONNECT WALLET ============
-connectBtn.addEventListener("click", async () => {
-  try {
-    await config.wagmiClient.connect();
-    updateWalletInfo();
-  } catch (err) {
-    console.log("Connect error:", err);
-  }
-});
+// ---- CONNECT WALLET ----
+async function connectWallet() {
+    try {
+        const provider = await modal.connect();
+        const ethersProvider = new ethers.BrowserProvider(provider);
+        const signer = await ethersProvider.getSigner();
 
-// ============ DISCONNECT ============
-disconnectBtn.addEventListener("click", async () => {
-  await config.wagmiClient.disconnect();
-  walletInfo.classList.add("hidden");
-});
+        const address = await signer.getAddress();
+        const network = await ethersProvider.getNetwork();
+        const balanceWei = await ethersProvider.getBalance(address);
+        const balance = ethers.formatEther(balanceWei);
 
-// ============ UPDATE UI ============
-async function updateWalletInfo() {
-  const state = config.wagmiClient.getState();
-  const addr = state.current?.signer?.address;
-  const chainId = state.chainId;
+        // Tampilkan ke UI
+        addressEl.textContent = address;
+        networkEl.textContent = network.name + " (" + network.chainId + ")";
+        balanceEl.textContent = balance;
 
-  if (addr) {
-    addressTag.textContent = addr;
-    chainTag.textContent = chainId;
-    walletInfo.classList.remove("hidden");
-  }
+        walletInfo.classList.remove("hidden");
+    } catch (err) {
+        console.error(err);
+        alert("Gagal connect wallet.");
+    }
 }
+
+connectBtn.addEventListener("click", connectWallet);
